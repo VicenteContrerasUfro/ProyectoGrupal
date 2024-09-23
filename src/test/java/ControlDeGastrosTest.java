@@ -25,7 +25,7 @@ class ControlDeGastosTest {
     }
 
     @Test
-    public void testRegistrarGastoEstudiantil_validInput() {
+    public void testRegistrarGastoEstudiantil_entradaValida() {
         GestorGastos gestorGastos = new GestorGastos();
         Scanner scanner = new Scanner("1000\n01/01/2022\nComida\nEmpanadas\n");
         int montoEsperado = 1000;
@@ -34,7 +34,7 @@ class ControlDeGastosTest {
         String comentarioEsperado = "Empanadas";
 
         registrarGastoEstudiantil(scanner, gestorGastos);
-        String[] lineasGasto = leerLineasArchivo("gastos.csv");
+        String[] lineasGasto = leerLineasArchivo();
         String ultimaLinea = lineasGasto[lineasGasto.length - 1];
         String[] valoresGasto = ultimaLinea.split(",");
         assertEquals(String.valueOf(montoEsperado), valoresGasto[0]);
@@ -44,8 +44,8 @@ class ControlDeGastosTest {
     }
     //Se crea metodo para leerLineasArchivo ya que el metodo de GestorGastos tiene otra funcionalidad y no devuelve
     //un String[]
-    private String[] leerLineasArchivo(String archivoGastosCSV) {
-        try (BufferedReader lector = new BufferedReader(new FileReader(archivoGastosCSV))) {
+    private String[] leerLineasArchivo() {
+        try (BufferedReader lector = new BufferedReader(new FileReader("gastos.csv"))) {
             List<String> lineas = new ArrayList<>();
             String linea;
             while ((linea = lector.readLine()) != null) {
