@@ -45,7 +45,6 @@ public class ControlDeGastosEstudiantil {
             System.out.println("Si desea, ingrese algún comentario extra: ");
             comentario = scanner.nextLine();
 
-            // Llamar al método para escribir los datos en el archivo CSV
             escribirGastoEnCSV(monto, fecha, categoriaGasto, comentario);
 
         } catch (NumberFormatException e) {
@@ -58,10 +57,7 @@ public class ControlDeGastosEstudiantil {
     public static void escribirGastoEnCSV(int monto, String fecha, String categoriaGasto, String comentario) throws IOException {
         FileWriter csvWriter = new FileWriter("gastos.csv", true);
 
-        csvWriter.append(monto + ",");
-        csvWriter.append(fecha + ",");
-        csvWriter.append(categoriaGasto + ",");
-        csvWriter.append(comentario + "\n");
+        csvWriter.append(monto + ",");csvWriter.append(fecha + ",");csvWriter.append(categoriaGasto + ",");csvWriter.append(comentario + "\n");
 
         csvWriter.flush();
         csvWriter.close();
