@@ -1,4 +1,3 @@
-import org.example.ControlDeGastosEstudiantil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -6,20 +5,19 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import org.example.GestorGastos;
 
+import static org.example.ControlDeGastosEstudiantil.registrarGastoEstudiantil;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ControlDeGastosTest {
-
-    private String nombre;
-    private String universidad;
     private String archivoGastosCSV = "gastos.csv"; // Ruta del archivo CSV
 
     @BeforeEach
     void setUp() {
-        nombre = "Rodrigo Olave"; universidad = "202201234";
-        // Limpiar el archivo CSV
         File archivo = new File(archivoGastosCSV);
         if (archivo.exists()) {
             archivo.delete();
@@ -27,20 +25,36 @@ class ControlDeGastosTest {
     }
 
     @Test
-    void testComprobacionGastos() {
-        String gastoSimulado = "1\n1000\n23/09/2024\nComida\nEmpanadas\n10\n";
-        Scanner scanner = new Scanner(gastoSimulado);
-            ControlDeGastosEstudiantil.mostrarMenu(scanner);
+    public void testRegistrarGastoEstudiantil_validInput() {
+        GestorGastos gestorGastos = new GestorGastos();
+        Scanner scanner = new Scanner("1000\n01/01/2022\nComida\nEmpanadas\n");
+        int montoEsperado = 1000;
+        String fechaEsperada = "01/01/2022";
+        String categoriaGastoEsperada = "Comida";
+        String comentarioEsperado = "Empanadas";
 
-        try (BufferedReader lectorGastos = new BufferedReader(new FileReader(archivoGastosCSV))) {
-            String linea = lectorGastos.readLine();
-            assertNotNull(linea, "El archivo CSV debería contener una línea.");
-            String[] datos = linea.split(",");
-            assertEquals("1000", datos[0]);assertEquals("23/09/2024", datos[1]);
-            assertEquals("Comida", datos[2]);assertEquals("Empanadas", datos[3]);
-
+        registrarGastoEstudiantil(scanner, gestorGastos);
+        String[] lineasGasto = leerLineasArchivo("gastos.csv");
+        String ultimaLinea = lineasGasto[lineasGasto.length - 1];
+        String[] valoresGasto = ultimaLinea.split(",");
+        assertEquals(String.valueOf(montoEsperado), valoresGasto[0]);
+        assertEquals(fechaEsperada, valoresGasto[1]);
+        assertEquals(categoriaGastoEsperada, valoresGasto[2]);
+        assertEquals(comentarioEsperado, valoresGasto[3]);
+    }
+    //Se crea metodo para leerLineasArchivo ya que el metodo de GestorGastos tiene otra funcionalidad y no devuelve
+    //un String[]
+    private String[] leerLineasArchivo(String archivoGastosCSV) {
+        try (BufferedReader lector = new BufferedReader(new FileReader(archivoGastosCSV))) {
+            List<String> lineas = new ArrayList<>();
+            String linea;
+            while ((linea = lector.readLine()) != null) {
+                lineas.add(linea);
+            }
+            return lineas.toArray(new String[0]);
         } catch (IOException e) {
-            fail("No se pudo leer el archivo CSV: " + e.getMessage());
+            System.out.println("Error al leer el archivo: " + e.getMessage());
         }
+        return new String[0];
     }
 }

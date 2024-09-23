@@ -1,14 +1,11 @@
 package org.example;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Scanner;
-import java.io.BufferedReader;
-import java.io.FileReader;
 
+import java.util.Scanner;
 
 public class ControlDeGastosEstudiantil {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        GestorGastos gestorGastos = new GestorGastos();
 
         System.out.println("Bienvenido al Sistema de Control de Gastos Estudiantil");
         System.out.print("Ingrese su nombre: ");
@@ -16,37 +13,69 @@ public class ControlDeGastosEstudiantil {
         System.out.print("Ingrese la universidad a la cual pertenece: ");
         String universidad = scanner.nextLine();
 
-        guardarEstudianteEnCSV(nombre, universidad);
-        mostrarMenu(scanner);
+        gestorGastos.guardarEstudianteEnCSV(nombre, universidad);
+        mostrarMenu(scanner, gestorGastos);
     }
 
-    public static void guardarEstudianteEnCSV(String nombre, String universidad) {
-        String archivoEstudiantesCSV = "estudiantes.csv";
-        try (FileWriter writer = new FileWriter(archivoEstudiantesCSV, true)) {
-            writer.append(nombre).append(",").append(universidad).append("\n");
-            System.out.println("Datos guardados correctamente en " + archivoEstudiantesCSV);
+    public static void mostrarMenu(Scanner scanner, GestorGastos gestorGastos) {
+        int opcion = -1;
+        boolean mostrarMenu = true;
 
-        } catch (IOException e) {
-            System.out.println("Error al guardar los datos: " + e.getMessage());
-        }
-    }
-    public static void imprimirGastos() {
-        String archivoGastosCSV = "gastos.csv";
-        try (BufferedReader lectorGastos = new BufferedReader(new FileReader(archivoGastosCSV))) {
-            String linea;
-            System.out.println("Historial de gastos:");
-            System.out.println("----------------------------------------");
-            while ((linea = lectorGastos.readLine()) != null) {
-                System.out.println(linea);
+        while (mostrarMenu) {
+            System.out.println("\nMenú principal:");
+            System.out.println("1) Registrar gastos");
+            System.out.println("2) Visualizar historial de gastos");
+            System.out.println("3) Monto total gastado");
+            System.out.println("4) Búsqueda por categoría de gasto");
+            System.out.println("5) Búsqueda por fecha");
+            System.out.println("6) Establecer meta");
+            System.out.println("7) Calcular promedio de gastos");
+            System.out.println("8) Eliminar datos de CSV");
+            System.out.println("9) Visualizar porcentaje de tipos de gastos en el monto total");
+            System.out.println("10) Salir");
+            System.out.print("Seleccione una opción: ");
+
+            try {
+                opcion = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Error, la opción seleccionada es inválida.");
+                continue;
+            }
+            if (opcion < 1 || opcion > 10) {
+                System.out.println("Error: La opción seleccionada es inválida. Intente nuevamente.");
+                continue;
             }
 
-            System.out.println("----------------------------------------");
-        } catch (IOException e) {
-            System.out.println("Error al leer el archivo: " + e.getMessage());
+            switch (opcion) {
+                case 1:
+                    registrarGastoEstudiantil(scanner, gestorGastos);
+                    break;
+                case 2:
+                    gestorGastos.imprimirGastosCSV();
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+                case 6:
+                    break;
+                case 7:
+                    break;
+                case 8:
+                    break;
+                case 9:
+                    break;
+                case 10:
+                    mostrarMenu=false;
+                    break;
+            }
         }
+        System.out.println("Finalizando programa...");
     }
 
-    public static void registrarGastoEstudiantil(Scanner scanner) {
+    public static void registrarGastoEstudiantil(Scanner scanner, GestorGastos gestorGastos) {
         int monto = 0;
         String fecha, categoriaGasto, comentario;
         try {
@@ -62,94 +91,10 @@ public class ControlDeGastosEstudiantil {
             System.out.println("Si desea, ingrese algún comentario extra: ");
             comentario = scanner.nextLine();
 
-            escribirGastoEnCSV(monto, fecha, categoriaGasto, comentario);
+            gestorGastos.registrarGastoEstudiantil(monto, fecha, categoriaGasto, comentario);
 
         } catch (NumberFormatException e) {
             System.out.println("Error: El monto debe ser un número.");
-        } catch (IOException e) {
-            System.out.println("Error al escribir en el archivo CSV: " + e.getMessage());
         }
-    }
-
-    public static void escribirGastoEnCSV(int monto, String fecha, String categoriaGasto, String comentario) throws IOException {
-        FileWriter csvWriter = new FileWriter("gastos.csv", true);
-
-        csvWriter.append(monto + ",");csvWriter.append(fecha + ",");csvWriter.append(categoriaGasto + ",");csvWriter.append(comentario + "\n");
-
-        csvWriter.flush();
-        csvWriter.close();
-
-        System.out.println("Gasto registrado exitosamente en gastos.csv");
-
-    }
-
-    public static void mostrarMenu(Scanner scanner) {
-        int opcion = -1;
-
-        while (opcion != 10) {
-            System.out.println("\nMenú principal:");
-            System.out.println("1) Registrar gastos");
-            System.out.println("2) Visualizar historial de gastos");
-            System.out.println("3) Monto total gastado");
-            System.out.println("4) Búsqueda por categoría de gasto");
-            System.out.println("5) Búsqueda por fecha");
-            System.out.println("6) Establecer meta");
-            System.out.println("7) Calcular promedio de gastos");
-            System.out.println("8) Eliminar datos de CSV");
-            System.out.println("9) Visualizar porcentaje de tipos de gastos en el monto total");
-            System.out.println("10) Salir");
-            System.out.print("Seleccione una opción: ");
-
-            try{
-                opcion = Integer.parseInt(scanner.nextLine());
-            }catch(NumberFormatException e) {
-                System.out.println("Error, la opción seleccionada es inválida.");
-                continue;
-            }
-            if (opcion < 1 || opcion > 10) {
-                System.out.println("Error: La opción seleccionada es inválida. Intente nuevamente.");
-                continue;}
-
-            switch (opcion) {
-                case 1:
-                    registrarGastoEstudiantil(scanner);
-                    break;
-                case 2:
-                    imprimirGastos();
-                    break;
-                case 3:
-                    System.out.println("Opción 3 seleccionada: Monto total gastado.");
-
-                    break;
-                case 4:
-                    System.out.println("Opción 4 seleccionada: Búsqueda por categoría de gasto.");
-
-                    break;
-                case 5:
-                    System.out.println("Opción 5 seleccionada: Búsqueda por fecha.");
-
-                    break;
-                case 6:
-                    System.out.println("Opción 6 seleccionada: Establecer meta.");
-
-                    break;
-                case 7:
-                    System.out.println("Opción 7 seleccionada: Calcular promedio de gastos.");
-
-                    break;
-                case 8:
-                    System.out.println("Opción 8 seleccionada: Eliminar datos de CSV.");
-
-                    break;
-                case 9:
-                    System.out.println("Opción 9 seleccionada: Visualizar porcentaje de tipos de gastos.");
-
-                    break;
-                case 10:
-                    break;
-            }
-        }
-        System.out.println("Programa finalizado.");
     }
 }
-
