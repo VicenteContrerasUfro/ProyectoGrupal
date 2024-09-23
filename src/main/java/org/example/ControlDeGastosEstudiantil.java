@@ -2,6 +2,8 @@ package org.example;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 
 public class ControlDeGastosEstudiantil {
@@ -26,6 +28,21 @@ public class ControlDeGastosEstudiantil {
 
         } catch (IOException e) {
             System.out.println("Error al guardar los datos: " + e.getMessage());
+        }
+    }
+    public static void imprimirGastos() {
+        String archivoGastosCSV = "gastos.csv";
+        try (BufferedReader lectorGastos = new BufferedReader(new FileReader(archivoGastosCSV))) {
+            String linea;
+            System.out.println("Historial de gastos:");
+            System.out.println("----------------------------------------");
+            while ((linea = lectorGastos.readLine()) != null) {
+                System.out.println(linea);
+            }
+
+            System.out.println("----------------------------------------");
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo: " + e.getMessage());
         }
     }
 
@@ -72,7 +89,7 @@ public class ControlDeGastosEstudiantil {
         while (opcion != 10) {
             System.out.println("\nMenú principal:");
             System.out.println("1) Registrar gastos");
-            System.out.println("2) Visualizar historial de compras");
+            System.out.println("2) Visualizar historial de gastos");
             System.out.println("3) Monto total gastado");
             System.out.println("4) Búsqueda por categoría de gasto");
             System.out.println("5) Búsqueda por fecha");
@@ -98,8 +115,7 @@ public class ControlDeGastosEstudiantil {
                     registrarGastoEstudiantil(scanner);
                     break;
                 case 2:
-                    System.out.println("Opción 2 seleccionada: Visualizar historial de compras.");
-
+                    imprimirGastos();
                     break;
                 case 3:
                     System.out.println("Opción 3 seleccionada: Monto total gastado.");
