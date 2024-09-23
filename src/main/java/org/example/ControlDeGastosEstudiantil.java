@@ -16,11 +16,11 @@ public class ControlDeGastosEstudiantil {
         System.out.print("Ingrese la universidad a la cual pertenece: ");
         String universidad = scanner.nextLine();
 
-        guardarEstudianteEnCSV(nombre, nombre, universidad);
+        guardarEstudianteEnCSV(nombre, universidad);
         mostrarMenu(scanner);
     }
 
-    public static void guardarEstudianteEnCSV(String s, String nombre, String universidad) {
+    public static void guardarEstudianteEnCSV(String nombre, String universidad) {
         String archivoEstudiantesCSV = "estudiantes.csv";
         try (FileWriter writer = new FileWriter(archivoEstudiantesCSV, true)) {
             writer.append(nombre).append(",").append(universidad).append("\n");
