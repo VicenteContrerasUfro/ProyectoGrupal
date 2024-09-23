@@ -51,7 +51,7 @@ public class ControlDeGastosEstudiantil {
                     registrarGastoEstudiantil(scanner, gestorGastos);
                     break;
                 case 2:
-                    gestorGastos.imprimirGastosCSV();
+                    GestorGastos.imprimirGastosCSV();
                     break;
                 case 3:
                     break;
