@@ -11,23 +11,64 @@ public class ControlDeGastosEstudiantil {
         System.out.println("Bienvenido al Sistema de Control de Gastos Estudiantil");
         System.out.print("Ingrese su nombre: ");
         String nombre = scanner.nextLine();
-        System.out.print("Ingrese su matrícula: ");
-        String matricula = scanner.nextLine();
+        System.out.print("Ingrese la universidad a la cual pertenece: ");
+        String universidad = scanner.nextLine();
 
-        guardarEstudianteEnCSV(nombre, nombre, matricula);
+        guardarEstudianteEnCSV(nombre, nombre, universidad);
         mostrarMenu(scanner);
     }
 
-    public static void guardarEstudianteEnCSV(String s, String nombre, String matricula) {
-        String archivoCSV = "estudiantes.csv";
-        try (FileWriter writer = new FileWriter(archivoCSV, true)) {
-            writer.append(nombre).append(",").append(matricula).append("\n");
-            System.out.println("Datos guardados correctamente en " + archivoCSV);
+    public static void guardarEstudianteEnCSV(String s, String nombre, String universidad) {
+        String archivoEstudiantesCSV = "estudiantes.csv";
+        try (FileWriter writer = new FileWriter(archivoEstudiantesCSV, true)) {
+            writer.append(nombre).append(",").append(universidad).append("\n");
+            System.out.println("Datos guardados correctamente en " + archivoEstudiantesCSV);
+
         } catch (IOException e) {
             System.out.println("Error al guardar los datos: " + e.getMessage());
         }
     }
 
+    public static void registrarGastoEstudiantil(Scanner scanner) {
+        int monto = 0;
+        String fecha, categoriaGasto, comentario;
+        try {
+            System.out.println("Ingrese el monto del gasto: ");
+            monto = Integer.parseInt(scanner.nextLine());
+
+            System.out.println("Ingrese la fecha del gasto (DD/MM/AAAA): ");
+            fecha = scanner.nextLine();
+
+            System.out.println("Ingrese el tipo o categoría de gasto: ");
+            categoriaGasto = scanner.nextLine();
+
+            System.out.println("Si desea, ingrese algún comentario extra: ");
+            comentario = scanner.nextLine();
+
+            // Llamar al método para escribir los datos en el archivo CSV
+            escribirGastoEnCSV(monto, fecha, categoriaGasto, comentario);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Error: El monto debe ser un número.");
+        } catch (IOException e) {
+            System.out.println("Error al escribir en el archivo CSV: " + e.getMessage());
+        }
+    }
+
+    public static void escribirGastoEnCSV(int monto, String fecha, String categoriaGasto, String comentario) throws IOException {
+        FileWriter csvWriter = new FileWriter("gastos.csv", true);
+
+        csvWriter.append(monto + ",");
+        csvWriter.append(fecha + ",");
+        csvWriter.append(categoriaGasto + ",");
+        csvWriter.append(comentario + "\n");
+
+        csvWriter.flush();
+        csvWriter.close();
+
+        System.out.println("Gasto registrado exitosamente en gastos.csv");
+
+    }
 
     public static void mostrarMenu(Scanner scanner) {
         int opcion = -1;
@@ -46,12 +87,19 @@ public class ControlDeGastosEstudiantil {
             System.out.println("10) Salir");
             System.out.print("Seleccione una opción: ");
 
-            opcion = scanner.nextInt();
+            try{
+                opcion = Integer.parseInt(scanner.nextLine());
+            }catch(NumberFormatException e) {
+                System.out.println("Error, la opción seleccionada es inválida.");
+                continue;
+            }
+            if (opcion < 1 || opcion > 10) {
+                System.out.println("Error: La opción seleccionada es inválida. Intente nuevamente.");
+                continue;}
 
             switch (opcion) {
                 case 1:
-                    System.out.println("Opción 1 seleccionada: Registrar gastos.");
-
+                    registrarGastoEstudiantil(scanner);
                     break;
                 case 2:
                     System.out.println("Opción 2 seleccionada: Visualizar historial de compras.");
@@ -87,10 +135,9 @@ public class ControlDeGastosEstudiantil {
                     break;
                 case 10:
                     break;
-                default:
-                    System.out.println("Opción no válida. Intente nuevamente.");
             }
         }
         System.out.println("Programa finalizado.");
     }
 }
+

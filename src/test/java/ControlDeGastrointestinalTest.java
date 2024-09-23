@@ -7,12 +7,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class ControlDeGastrointestinalTest {
 
     private String nombre;
-    private String matricula;
+    private String universidad;
 
     @BeforeEach
     void setUp() {
         nombre = "Rodrigo Olave";
-        matricula = "202201234";
+        universidad = "202201234";
     }
 
     @Test
