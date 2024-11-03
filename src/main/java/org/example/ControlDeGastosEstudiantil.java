@@ -5,6 +5,7 @@ import java.util.Scanner;
 public class ControlDeGastosEstudiantil {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        GestorEstudiantes gestorEstudiantes = new GestorEstudiantes();
         GestorGastos gestorGastos = new GestorGastos();
 
         System.out.println("Bienvenido al Sistema de Control de Gastos Estudiantil");
@@ -13,15 +14,14 @@ public class ControlDeGastosEstudiantil {
         System.out.print("Ingrese la universidad a la cual pertenece: ");
         String universidad = scanner.nextLine();
 
-        gestorGastos.guardarEstudianteEnCSV(nombre, universidad);
+        Estudiante estudiante = new Estudiante(nombre, universidad);
+        gestorEstudiantes.guardarEstudianteEnCSV(estudiante);
+
         mostrarMenu(scanner, gestorGastos);
     }
 
     public static void mostrarMenu(Scanner scanner, GestorGastos gestorGastos) {
-        int opcion = -1;
-        boolean mostrarMenu = true;
-
-        while (mostrarMenu) {
+        while (true) {
             System.out.println("\nMenú principal:");
             System.out.println("1) Registrar gastos");
             System.out.println("2) Visualizar historial de gastos");
@@ -35,66 +35,40 @@ public class ControlDeGastosEstudiantil {
             System.out.println("10) Salir");
             System.out.print("Seleccione una opción: ");
 
-            try {
-                opcion = Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
-                System.out.println("Error, la opción seleccionada es inválida.");
-                continue;
-            }
-            if (opcion < 1 || opcion > 10) {
-                System.out.println("Error: La opción seleccionada es inválida. Intente nuevamente.");
-                continue;
-            }
-
+            int opcion = Integer.parseInt(scanner.nextLine());
             switch (opcion) {
-                case 1:
-                    registrarGastoEstudiantil(scanner, gestorGastos);
-                    break;
-                case 2:
-                    GestorGastos.imprimirGastosCSV();
-                    break;
-                case 3:
-                    break;
-                case 4:
-                    break;
-                case 5:
-                    break;
-                case 6:
-                    break;
-                case 7:
-                    break;
-                case 8:
-                    break;
-                case 9:
-                    break;
-                case 10:
-                    mostrarMenu=false;
-                    break;
+                case 1 -> registrarGasto(scanner, gestorGastos);
+                case 2 -> gestorGastos.imprimirGastos();
+                case 3 -> System.out.println("Monto total gastado: " + gestorGastos.calcularMontoTotal());
+                case 4 -> {
+                    System.out.print("Ingrese la categoría de gasto: ");
+                    gestorGastos.buscarGastosPorCategoria(scanner.nextLine());
+                }
+                case 5 -> System.out.println("Funcionalidad de búsqueda por fecha (por implementar)");
+                case 6 -> System.out.println("Funcionalidad de establecer meta (por implementar)");
+                case 7 -> System.out.println("Funcionalidad de calcular promedio de gastos (por implementar)");
+                case 8 -> System.out.println("Funcionalidad de eliminar datos de CSV (por implementar)");
+                case 9 -> System.out.println("Funcionalidad de visualizar porcentaje de tipos de gastos (por implementar)");
+                case 10 -> {
+                    System.out.println("Finalizando programa...");
+                    return;
+                }
+                default -> System.out.println("Opción inválida.");
             }
         }
-        System.out.println("Finalizando programa...");
     }
 
-    public static void registrarGastoEstudiantil(Scanner scanner, GestorGastos gestorGastos) {
-        int monto = 0;
-        String fecha, categoriaGasto, comentario;
-        try {
-            System.out.println("Ingrese el monto del gasto: ");
-            monto = Integer.parseInt(scanner.nextLine());
+    public static void registrarGasto(Scanner scanner, GestorGastos gestorGastos) {
+        System.out.print("Ingrese el monto del gasto: ");
+        int monto = Integer.parseInt(scanner.nextLine());
+        System.out.print("Ingrese la fecha del gasto (DD/MM/AAAA): ");
+        String fecha = scanner.nextLine();
+        System.out.print("Ingrese la categoría de gasto: ");
+        String categoria = scanner.nextLine();
+        System.out.print("Ingrese algún comentario extra: ");
+        String comentario = scanner.nextLine();
 
-            System.out.println("Ingrese la fecha del gasto (DD/MM/AAAA): ");
-            fecha = scanner.nextLine();
-
-            System.out.println("Ingrese el tipo o categoría de gasto: ");
-            categoriaGasto = scanner.nextLine();
-
-            System.out.println("Si desea, ingrese algún comentario extra: ");
-            comentario = scanner.nextLine();
-
-            gestorGastos.registrarGastoEstudiantil(monto, fecha, categoriaGasto, comentario);
-
-        } catch (NumberFormatException e) {
-            System.out.println("Error: El monto debe ser un número.");
-        }
+        Gasto gasto = new Gasto(monto, fecha, categoria, comentario);
+        gestorGastos.registrarGasto(gasto);
     }
 }
