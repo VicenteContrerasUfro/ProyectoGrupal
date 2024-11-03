@@ -1,15 +1,30 @@
 package org.example;
 
-import java.io.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GestorGastos {
-    private static final String csvGastos = "gastos.csv";
+    private static String csvGastos = "gastos.csv";
+    private int limiteGasto;
+
 
     public void registrarGasto(Gasto gasto) {
+        //ver si supera la meta o monto max
+        if (gasto.getMonto() + calcularMontoTotal() > limiteGasto) {
+            System.out.println("Error: El gasto excede el límite establecido de " + limiteGasto);
+            return;
+        }
+
         try (FileWriter csvWriter = new FileWriter(csvGastos, true)) {
-            csvWriter.append(gasto.toString()).append("\n");
+            csvWriter.append(gasto.getMonto() + ",")
+                    .append(gasto.getFecha() + ",")
+                    .append(gasto.getCategoria() + ",")
+                    .append(gasto.getComentario() + "\n");
+            csvWriter.flush();
             System.out.println("Gasto registrado exitosamente en " + csvGastos);
         } catch (IOException e) {
             System.out.println("Error al escribir en el archivo CSV: " + e.getMessage());
@@ -32,18 +47,17 @@ public class GestorGastos {
 
     // opcion 3
     public int calcularMontoTotal() {
-        int montoTotal = 0;
+        int total = 0;
         try (BufferedReader lectorGastos = new BufferedReader(new FileReader(csvGastos))) {
             String linea;
             while ((linea = lectorGastos.readLine()) != null) {
                 String[] datos = linea.split(",");
-                int monto = Integer.parseInt(datos[0].trim());
-                montoTotal += monto;
+                total += Integer.parseInt(datos[0]);
             }
-        } catch (IOException | NumberFormatException e) {
-            System.out.println("Error al procesar los gastos: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo: " + e.getMessage());
         }
-        return montoTotal;
+        return total;
     }
 
     // opcion 4
@@ -68,4 +82,30 @@ public class GestorGastos {
             System.out.println("Error al leer el archivo: " + e.getMessage());
         }
     }
+    public void buscarGastosPorFecha(String fecha) {
+        try (BufferedReader lectorGastos = new BufferedReader(new FileReader(csvGastos))) {
+            String linea;
+            boolean encontrado = false;
+            System.out.println("Gastos registrados para la fecha " + fecha + ":");
+            System.out.println("----------------------------------------");
+            while ((linea = lectorGastos.readLine()) != null) {
+                String[] datos = linea.split(",");
+                if (datos[1].equals(fecha)) {
+                    System.out.println(linea);
+                    encontrado = true;
+                }
+            }
+            if (!encontrado) {
+                System.out.println("No se encontraron gastos para la fecha " + fecha);
+            }
+            System.out.println("----------------------------------------");
+        } catch (IOException e) {
+            System.out.println("Error al leer el archivo: " + e.getMessage());
+        }
+    }
+    public void establecerLimiteGasto(int limite) {
+        this.limiteGasto = limite;
+        System.out.println("Límite de gasto establecido en: " + limite);
+    }
+
 }
