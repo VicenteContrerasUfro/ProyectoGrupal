@@ -44,7 +44,7 @@ public class ControlDeGastosEstudiantil {
             }
 
             switch (opcion) {
-                case 1 -> registrarGasto(scanner, gestorGastos);
+                case 1 -> registrarGastoEstudiantil(scanner, gestorGastos);
                 case 2 -> gestorGastos.imprimirGastos();
                 case 3 -> System.out.println("Monto total gastado: " + gestorGastos.calcularMontoTotal());
                 case 4 -> {
@@ -56,7 +56,7 @@ public class ControlDeGastosEstudiantil {
                     gestorGastos.buscarGastosPorFecha(scanner.nextLine());
                 }
                 case 6 -> establecerMeta(scanner, gestorGastos);
-                case 7-> {
+                case 7 -> {
                     Map<String, Double> porcentajePorCategoria = gestorGastos.calcularPorcentajePorCategoria();
 
                     // Comprobamos si el mapa está vacío
@@ -71,6 +71,8 @@ public class ControlDeGastosEstudiantil {
                     break;
                 }
 
+
+
                 case 8 -> gestorGastos.eliminarDatosCSV();
                 case 10 -> {
                     System.out.println("Finalizando programa...");
@@ -81,39 +83,33 @@ public class ControlDeGastosEstudiantil {
         }
     }
 
-    public static void registrarGasto(Scanner scanner, GestorGastos gestorGastos) {
-        double monto = 0;
-        String fecha, categoria, comentario;
+    public static void registrarGastoEstudiantil(Scanner scanner, GestorGastos gestorGastos) {
+        double monto = 0.0;
+        String fecha, categoriaGasto, comentario;
+        try {
+            System.out.println("Ingrese el monto del gasto: ");
+            monto = Double.parseDouble(scanner.nextLine());
 
-        while (true) {
-            System.out.print("Ingrese el monto del gasto: ");
-            try {
-                monto = Integer.parseInt(scanner.nextLine());
-                if (monto <= 0) {
-                    System.out.println("Error: El monto debe ser un número positivo.");
-                    continue;
-                }
-                break;
-            } catch (NumberFormatException e) {
-                System.out.println("Error: El monto debe ser un número.");
-            }
-        }
-
-        while (true) {
-            System.out.print("Ingrese la fecha del gasto (DD/MM/AAAA): ");
+            System.out.println("Ingrese la fecha del gasto (DD/MM/AAAA): ");
             fecha = scanner.nextLine();
-            if (validarFecha(fecha)) break;
-            else System.out.println("Error: La fecha ingresada no tiene un formato válido. Intente de nuevo.");
+
+            System.out.println("Ingrese la categoría de gasto: ");
+            categoriaGasto = scanner.nextLine();
+
+            System.out.println("Si desea, ingrese algún comentario extra: ");
+            comentario = scanner.nextLine();
+
+            // Crear un nuevo objeto Gasto
+            Gasto gasto = new Gasto(monto, fecha, categoriaGasto, comentario);
+            // Registrar el gasto
+
+            gestorGastos.registrarGasto(gasto);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Error: El monto debe ser un número válido.");
         }
-
-        System.out.print("Ingrese la categoría de gasto: ");
-        categoria = scanner.nextLine();
-        System.out.print("Ingrese algún comentario extra: ");
-        comentario = scanner.nextLine();
-
-        Gasto gasto = new Gasto(monto, fecha, categoria, comentario);
-        gestorGastos.registrarGasto(gasto);
     }
+
 
     public static void establecerMeta(Scanner scanner, GestorGastos gestorGastos) {
         int limite = 0;
