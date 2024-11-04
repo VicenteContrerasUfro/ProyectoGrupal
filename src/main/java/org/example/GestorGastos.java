@@ -11,10 +11,21 @@ public class GestorGastos {
     private double limiteGasto;
 
 
+    public GestorGastos() {
+        this.csvGastos = "gastos.csv";
+    }
+    public GestorGastos(String csvGastosPath) {
+        this.csvGastos = csvGastosPath;
+    }
     public void registrarGasto(Gasto gasto) {
         double montoTotal = calcularMontoTotal();
         if (gasto.getMonto() + montoTotal > limiteGasto) {
             System.out.println("Error: El gasto de " + gasto.getMonto() + " excede el límite establecido de " + limiteGasto + ". Total actual: " + montoTotal);
+            return;
+        }
+
+        if (!validarFecha(gasto.getFecha())) {
+            System.out.println("Error: La fecha " + gasto.getFecha() + " no es válida. El formato correcto es DD/MM/AAAA.");
             return;
         }
 
@@ -107,9 +118,10 @@ public class GestorGastos {
         }
     }
     public void establecerLimiteGasto(double limite) {
-        this.limiteGasto = limite;
-        System.out.println("Límite de gasto establecido en: " + limite);
-    }
+        this.limiteGasto = limite; }
+
+    public double getLimiteGasto() {
+        return limiteGasto; }
 
     public void eliminarDatosCSV() {
         try (FileWriter writer = new FileWriter(csvGastos, false)) {
@@ -207,5 +219,10 @@ public class GestorGastos {
         }
         return meta;
     }
+    public boolean validarFecha(String fecha) {
+        String patron = "\\d{2}/\\d{2}/\\d{4}";
+        return fecha.matches(patron);
+    }
+
 
 }
