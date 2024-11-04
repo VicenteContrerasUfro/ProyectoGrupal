@@ -4,16 +4,22 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 
 public class ControlDeGastosGUI {
     private JFrame frame;
-    private JTextField nombreField, matriculaField, montoField, fechaField, categoriaField, detalleField;
+    private JTextField nombreField, montoField, fechaField, categoriaField, detalleField;
     private JTextArea historialArea;
+    private GestorGastos gestorGastos;
+    private double metaGasto;
 
-    public ControlDeGastosGUI() {
-        // Crear la ventana principal
+    public ControlDeGastosGUI(GestorGastos gestorGastos) {
+        this.gestorGastos = gestorGastos;
+
+        // Configuración de la ventana principal
         frame = new JFrame("Control de Gastos Estudiantil");
-        frame.setSize(500, 400);
+        frame.setSize(600, 500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
@@ -23,10 +29,6 @@ public class ControlDeGastosGUI {
         panelRegistro.add(new JLabel("Nombre:"));
         nombreField = new JTextField();
         panelRegistro.add(nombreField);
-
-        panelRegistro.add(new JLabel("Matrícula:"));
-        matriculaField = new JTextField();
-        panelRegistro.add(matriculaField);
 
         panelRegistro.add(new JLabel("Monto:"));
         montoField = new JTextField();
@@ -52,57 +54,137 @@ public class ControlDeGastosGUI {
         JScrollPane scrollPane = new JScrollPane(historialArea);
         frame.add(scrollPane, BorderLayout.CENTER);
 
+        // Panel para los botones de acciones
+        JPanel panelBotones = new JPanel(new GridLayout(1, 4));
+
         // Botón para registrar gasto
         JButton registrarBtn = new JButton("Registrar Gasto");
-        frame.add(registrarBtn, BorderLayout.SOUTH);
         registrarBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 registrarGasto();
             }
         });
+        panelBotones.add(registrarBtn);
+
+        JButton abrirCSVBtn = new JButton("Abrir Archivo CSV");
+        abrirCSVBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                abrirArchivoCSV();
+            }
+        });
+        panelBotones.add(abrirCSVBtn);
+
+        // Botón para limpiar todos los gastos
+        JButton limpiarBtn = new JButton("Limpiar Todos los Gastos");
+        limpiarBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                limpiarTodosLosGastos();
+            }
+        });
+        panelBotones.add(limpiarBtn);
+
+        // Botón para establecer meta de gastos
+        JButton establecerMetaBtn = new JButton("Establecer Meta de Gastos");
+        establecerMetaBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                establecerMeta();
+            }
+        });
+        panelBotones.add(establecerMetaBtn);
+
+        frame.add(panelBotones, BorderLayout.SOUTH);
 
         frame.setVisible(true);
     }
 
     private void registrarGasto() {
         String nombre = nombreField.getText();
-        String matricula = matriculaField.getText();
-        String monto = montoField.getText();
+        String montoStr = montoField.getText();
         String fecha = fechaField.getText();
         String categoria = categoriaField.getText();
         String detalle = detalleField.getText();
 
         // Validar campos vacíos
-        if (nombre.isEmpty() || matricula.isEmpty() || monto.isEmpty() || fecha.isEmpty() || categoria.isEmpty() || detalle.isEmpty()) {
+        if (nombre.isEmpty() || montoStr.isEmpty() || fecha.isEmpty() || categoria.isEmpty() || detalle.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Por favor, complete todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
-        } else {
-            // Registrar gasto en el historial (simulado en este ejemplo)
+            return;
+        }
+
+        try {
+            double monto = Double.parseDouble(montoStr);
+
+            // Verificar si el gasto excede el límite establecido
+            if (monto + gestorGastos.calcularMontoTotal() > metaGasto) {
+                JOptionPane.showMessageDialog(frame, "Error: El gasto supera el límite máximo establecido.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Crear y registrar el gasto si está dentro del límite
+            Gasto gasto = new Gasto(monto, fecha, categoria, detalle);
+            gestorGastos.registrarGasto(gasto);
+
+            // Registrar gasto en el historial
             historialArea.append("Gasto registrado:\n");
             historialArea.append("Nombre: " + nombre + "\n");
-            historialArea.append("Matrícula: " + matricula + "\n");
-            historialArea.append("Monto: $" + monto + "\n");
+            historialArea.append("Monto: $" + montoStr + "\n");
             historialArea.append("Fecha: " + fecha + "\n");
             historialArea.append("Categoría: " + categoria + "\n");
             historialArea.append("Detalle: " + detalle + "\n\n");
 
             // Limpiar campos
             nombreField.setText("");
-            matriculaField.setText("");
             montoField.setText("");
             fechaField.setText("");
             categoriaField.setText("");
             detalleField.setText("");
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(frame, "Error: El monto debe ser un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public static void main(String[] args) {
-        // Crear y mostrar la interfaz gráfica
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new ControlDeGastosGUI();
-            }
-        });
+    private void limpiarTodosLosGastos() {
+        gestorGastos.eliminarDatosCSV();
+        historialArea.setText(""); // Limpiar el área de historial en la interfaz
     }
+
+    private void establecerMeta() {
+        String input = JOptionPane.showInputDialog(frame, "Ingrese el límite máximo de gasto:");
+        if (input != null) {
+            try {
+                metaGasto = Double.parseDouble(input);
+                gestorGastos.establecerLimiteGasto(metaGasto);
+                JOptionPane.showMessageDialog(frame, "Meta establecida en: " + metaGasto);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(frame, "Ingrese un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+
+
+        public static void main(String[] args) {
+        // Crear gestorGastos y pasar el archivo CSV
+        GestorGastos gestorGastos = new GestorGastos();
+
+        // Crear y mostrar la interfaz gráfica
+        SwingUtilities.invokeLater(() -> new ControlDeGastosGUI(gestorGastos));
+    }
+    private void abrirArchivoCSV() {
+        try {
+            File archivoCSV = new File("gastos.csv");
+            if (archivoCSV.exists()) {
+                Desktop.getDesktop().open(archivoCSV);
+            } else {
+                JOptionPane.showMessageDialog(frame, "El archivo CSV no existe.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "No se pudo abrir el archivo CSV: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
 }

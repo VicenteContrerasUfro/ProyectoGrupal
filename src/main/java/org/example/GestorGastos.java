@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class GestorGastos {
     private static String csvGastos = "gastos.csv";
-    private int limiteGasto;
+    private double limiteGasto;
 
 
     public void registrarGasto(Gasto gasto) {
@@ -108,7 +108,7 @@ public class GestorGastos {
             System.out.println("Error al leer el archivo: " + e.getMessage());
         }
     }
-    public void establecerLimiteGasto(int limite) {
+    public void establecerLimiteGasto(double limite) {
         this.limiteGasto = limite;
         System.out.println("Límite de gasto establecido en: " + limite);
     }
@@ -163,10 +163,27 @@ public class GestorGastos {
         return gastos;
     }
 
+    public List<Gasto> obtenerGastos() {
+        List<Gasto> gastos = new ArrayList<>();
 
+        try (BufferedReader br = new BufferedReader(new FileReader(csvGastos))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] datos = line.split(",");
 
+                // Parsear datos del CSV y crear un objeto Gasto
+                double monto = Double.parseDouble(datos[0]);
+                String fecha = datos[1];
+                String categoria = datos[2];
+                String comentario = datos[3];
 
+                Gasto gasto = new Gasto(monto, fecha, categoria, comentario);
+                gastos.add(gasto);
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.out.println("Error al leer el archivo de gastos: " + e.getMessage());
+        }
 
-
-
+        return gastos;
+    }
 }
