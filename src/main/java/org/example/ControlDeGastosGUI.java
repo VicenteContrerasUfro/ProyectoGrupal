@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.example.ControlDeGastosEstudiantil.mostrarPorcentajePorCategoria;
 
@@ -15,6 +17,7 @@ public class ControlDeGastosGUI {
     private JTextArea historialArea;
     private GestorGastos gestorGastos;
     private JLabel metaGastoLabel;
+    private JLabel totalGastadoLabel;
     private double metaGasto;
 
     public ControlDeGastosGUI(GestorGastos gestorGastos) {
@@ -55,6 +58,13 @@ public class ControlDeGastosGUI {
         panelRegistro.add(metaGastoLabel); // Agregar la meta al panel de registro
 
         frame.add(panelRegistro, BorderLayout.NORTH);
+
+        // Panel para el monto total gastado
+        JPanel panelMontoTotal = new JPanel(new GridLayout(1, 2));
+        panelMontoTotal.add(new JLabel("Monto Total Gastado:"));
+        totalGastadoLabel = new JLabel("$0.0");
+        panelMontoTotal.add(totalGastadoLabel);
+        frame.add(panelMontoTotal, BorderLayout.SOUTH);
 
         // Panel para el historial de gastos
         historialArea = new JTextArea();
@@ -114,6 +124,7 @@ public class ControlDeGastosGUI {
         });
         panelBotones.add(verPorcentajeBtn);
 
+
         // Botón para mostrar total gastado
         JButton verTotalGastadoBtn = new JButton("Total Gastado");
         verTotalGastadoBtn.addActionListener(new ActionListener() {
@@ -143,8 +154,15 @@ public class ControlDeGastosGUI {
 
         try {
             double monto = Double.parseDouble(montoStr);
+            double montoTotalActual = gestorGastos.calcularMontoTotal();
 
-            // Crear y registrar el gasto si está dentro del límite
+            // Verificar si el gasto excede el límite establecido
+            if (monto + montoTotalActual > metaGasto) {
+                JOptionPane.showMessageDialog(frame, "Error: El gasto que se intenta ingresar supera el límite máximo establecido. Límite: $" + metaGasto, "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Crear y registrar el gasto
             Gasto gasto = new Gasto(monto, fecha, categoria, detalle);
             gestorGastos.registrarGasto(gasto);
 
@@ -155,6 +173,9 @@ public class ControlDeGastosGUI {
             historialArea.append("Fecha: " + fecha + "\n");
             historialArea.append("Categoría: " + categoria + "\n");
             historialArea.append("Detalle: " + detalle + "\n\n");
+
+            // Actualizar el monto total gastado
+            totalGastadoLabel.setText("$" + gestorGastos.calcularMontoTotal());
 
             // Limpiar campos
             nombreField.setText("");
@@ -167,6 +188,7 @@ public class ControlDeGastosGUI {
             JOptionPane.showMessageDialog(frame, "Error: El monto debe ser un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
 
 
     private void limpiarTodosLosGastos() {
@@ -214,4 +236,26 @@ public class ControlDeGastosGUI {
         double totalGastado = gestorGastos.calcularMontoTotal();
         JOptionPane.showMessageDialog(frame, "Total Gastado: $" + totalGastado, "Total Gastado", JOptionPane.INFORMATION_MESSAGE);
     }
+
+    private void mostrarPorcentajePorCategoria(GestorGastos gestorGastos) {
+        Map<String, Double> gastosPorCategoria = new HashMap<>();
+        double totalGastado = 0.0;
+
+        // Calcular el total gastado y los gastos por categoría
+        for (Gasto gasto : gestorGastos.obtenerGastos()) {
+            totalGastado += gasto.getMonto();
+            gastosPorCategoria.put(gasto.getCategoria(), gastosPorCategoria.getOrDefault(gasto.getCategoria(), 0.0) + gasto.getMonto());
+        }
+
+        // Crear el mensaje con el porcentaje por categoría
+        StringBuilder mensaje = new StringBuilder("Porcentaje de Gasto por Categoría:\n");
+        for (Map.Entry<String, Double> entry : gastosPorCategoria.entrySet()) {
+            double porcentaje = (entry.getValue() / totalGastado) * 100;
+            mensaje.append(entry.getKey()).append(": ").append(String.format("%.2f", porcentaje)).append("%\n");
+        }
+
+        // Mostrar el mensaje en un cuadro de diálogo
+        JOptionPane.showMessageDialog(frame, mensaje.toString(), "Porcentaje de Gasto por Categoría", JOptionPane.INFORMATION_MESSAGE);
+    }
+
 }
