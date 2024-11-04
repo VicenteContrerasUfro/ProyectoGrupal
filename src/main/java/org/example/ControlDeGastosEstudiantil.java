@@ -6,17 +6,11 @@ import java.util.Scanner;
 public class ControlDeGastosEstudiantil {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        GestorEstudiantes gestorEstudiantes = new GestorEstudiantes();
         GestorGastos gestorGastos = new GestorGastos();
 
         System.out.println("Bienvenido al Sistema de Control de Gastos Estudiantil");
         System.out.print("Ingrese su nombre: ");
         String nombre = scanner.nextLine();
-        System.out.print("Ingrese la universidad a la cual pertenece: ");
-        String universidad = scanner.nextLine();
-
-        Estudiante estudiante = new Estudiante(nombre, universidad);
-        gestorEstudiantes.guardarEstudianteEnCSV(estudiante);
 
         mostrarMenu(scanner, gestorGastos);
     }
@@ -32,7 +26,7 @@ public class ControlDeGastosEstudiantil {
             System.out.println("6) Establecer meta");
             System.out.println("7) Calcular promedio de gastos");
             System.out.println("8) Eliminar datos de CSV");
-            System.out.println("10) Salir");
+            System.out.println("9) Salir");
             System.out.print("Seleccione una opción: ");
 
             int opcion;
@@ -56,25 +50,9 @@ public class ControlDeGastosEstudiantil {
                     gestorGastos.buscarGastosPorFecha(scanner.nextLine());
                 }
                 case 6 -> establecerMeta(scanner, gestorGastos);
-                case 7 -> {
-                    Map<String, Double> porcentajePorCategoria = gestorGastos.calcularPorcentajePorCategoria();
-
-                    // Comprobamos si el mapa está vacío
-                    if (porcentajePorCategoria.isEmpty()) {
-                        System.out.println("No hay gastos registrados o el cálculo de porcentaje no devolvió resultados.");
-                    } else {
-                        System.out.println("Porcentaje de cada categoría en el monto total:");
-                        for (Map.Entry<String, Double> entry : porcentajePorCategoria.entrySet()) {
-                            System.out.println("Categoría: " + entry.getKey() + " - Porcentaje: " + String.format("%.2f", entry.getValue()) + "%");
-                        }
-                    }
-                    break;
-                }
-
-
-
+                case 7 -> mostrarPorcentajePorCategoria(gestorGastos);
                 case 8 -> gestorGastos.eliminarDatosCSV();
-                case 10 -> {
+                case 9 -> {
                     System.out.println("Finalizando programa...");
                     return;
                 }
@@ -92,6 +70,10 @@ public class ControlDeGastosEstudiantil {
 
             System.out.println("Ingrese la fecha del gasto (DD/MM/AAAA): ");
             fecha = scanner.nextLine();
+            if (!validarFecha(fecha)) {
+                System.out.println("Error: La fecha ingresada no es válida. Por favor, intente nuevamente con el formato DD/MM/AAAA.");
+                return;
+            }
 
             System.out.println("Ingrese la categoría de gasto: ");
             categoriaGasto = scanner.nextLine();
@@ -99,9 +81,7 @@ public class ControlDeGastosEstudiantil {
             System.out.println("Si desea, ingrese algún comentario extra: ");
             comentario = scanner.nextLine();
 
-            // Crear un nuevo objeto Gasto
             Gasto gasto = new Gasto(monto, fecha, categoriaGasto, comentario);
-            // Registrar el gasto
 
             gestorGastos.registrarGasto(gasto);
 
@@ -134,10 +114,15 @@ public class ControlDeGastosEstudiantil {
     public static void mostrarPorcentajePorCategoria(GestorGastos gestorGastos) {
         Map<String, Double> porcentajes = gestorGastos.calcularPorcentajePorCategoria();
         System.out.println("Porcentaje de gastos por categoría:");
-        for (Map.Entry<String, Double> entry : porcentajes.entrySet()) {
-            System.out.printf("%s: %.2f%%\n", entry.getKey(), entry.getValue());
+        if (porcentajes.isEmpty()) {
+            System.out.println("No hay gastos registrados.");
+        } else {
+            for (Map.Entry<String, Double> entry : porcentajes.entrySet()) {
+                System.out.printf("%s: %.2f%%\n", entry.getKey(), entry.getValue());
+            }
         }
     }
+
 
     public static boolean validarFecha(String fecha) {
         String[] partes = fecha.split("/");
