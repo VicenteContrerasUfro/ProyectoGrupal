@@ -1,9 +1,6 @@
 package org.example;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +29,7 @@ public class GestorGastos {
             System.out.println("Error al escribir en el archivo CSV: " + e.getMessage());
         }
     }
+
 
 
     public void imprimirGastos() {
@@ -143,7 +141,7 @@ public class GestorGastos {
         return porcentajePorCategoria;
     }
 
-    private List<Gasto> cargarGastosDesdeCSV() {
+    public List<Gasto> cargarGastosDesdeCSV() {
         List<Gasto> gastos = new ArrayList<>();
         try (BufferedReader lectorGastos = new BufferedReader(new FileReader(csvGastos))) {
             String linea;
@@ -186,4 +184,28 @@ public class GestorGastos {
 
         return gastos;
     }
+    public void guardarMetaGasto(double metaGasto) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("metaGasto.txt"))) {
+            writer.write(Double.toString(metaGasto));
+        } catch (IOException e) {
+            System.out.println("No se pudo guardar la meta de gasto: " + e.getMessage());
+        }
+    }
+
+
+    public double cargarMetaGasto() {
+        double meta = 0.0;
+        try (BufferedReader reader = new BufferedReader(new FileReader("metaGasto.txt"))) {
+            String line = reader.readLine();
+            if (line != null) {
+                meta = Double.parseDouble(line);
+            }
+        } catch (IOException e) {
+            System.out.println("No se pudo cargar la meta de gasto: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Formato de número inválido en la meta de gasto.");
+        }
+        return meta;
+    }
+
 }

@@ -6,7 +6,6 @@ public class Gasto {
     private String categoria;
     private String comentario;
 
-    // Constructor
     public Gasto(double monto, String fecha, String categoria, String comentario) {
         this.monto = monto;
         this.fecha = fecha;
@@ -14,7 +13,7 @@ public class Gasto {
         this.comentario = comentario;
     }
 
-    // Getters
+    // Métodos getters
     public double getMonto() {
         return monto;
     }
@@ -29,5 +28,10 @@ public class Gasto {
 
     public String getComentario() {
         return comentario;
+    }
+
+    @Override
+    public String toString() {
+        return "Monto: " + monto + ", Fecha: " + fecha + ", Categoría: " + categoria + ", Detalle: " + comentario;
     }
 }
