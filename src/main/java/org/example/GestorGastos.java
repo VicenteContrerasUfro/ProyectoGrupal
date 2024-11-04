@@ -1,9 +1,6 @@
 package org.example;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,10 +11,21 @@ public class GestorGastos {
     private double limiteGasto;
 
 
+    public GestorGastos() {
+        this.csvGastos = "gastos.csv";
+    }
+    public GestorGastos(String csvGastosPath) {
+        this.csvGastos = csvGastosPath;
+    }
     public void registrarGasto(Gasto gasto) {
         double montoTotal = calcularMontoTotal();
         if (gasto.getMonto() + montoTotal > limiteGasto) {
             System.out.println("Error: El gasto de " + gasto.getMonto() + " excede el límite establecido de " + limiteGasto + ". Total actual: " + montoTotal);
+            return;
+        }
+
+        if (!validarFecha(gasto.getFecha())) {
+            System.out.println("Error: La fecha " + gasto.getFecha() + " no es válida. El formato correcto es DD/MM/AAAA.");
             return;
         }
 
@@ -32,6 +40,7 @@ public class GestorGastos {
             System.out.println("Error al escribir en el archivo CSV: " + e.getMessage());
         }
     }
+
 
 
     public void imprimirGastos() {
@@ -109,9 +118,10 @@ public class GestorGastos {
         }
     }
     public void establecerLimiteGasto(double limite) {
-        this.limiteGasto = limite;
-        System.out.println("Límite de gasto establecido en: " + limite);
-    }
+        this.limiteGasto = limite; }
+
+    public double getLimiteGasto() {
+        return limiteGasto; }
 
     public void eliminarDatosCSV() {
         try (FileWriter writer = new FileWriter(csvGastos, false)) {
@@ -143,7 +153,7 @@ public class GestorGastos {
         return porcentajePorCategoria;
     }
 
-    private List<Gasto> cargarGastosDesdeCSV() {
+    public List<Gasto> cargarGastosDesdeCSV() {
         List<Gasto> gastos = new ArrayList<>();
         try (BufferedReader lectorGastos = new BufferedReader(new FileReader(csvGastos))) {
             String linea;
@@ -186,4 +196,33 @@ public class GestorGastos {
 
         return gastos;
     }
+    public void guardarMetaGasto(double metaGasto) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("metaGasto.txt"))) {
+            writer.write(Double.toString(metaGasto));
+        } catch (IOException e) {
+            System.out.println("No se pudo guardar la meta de gasto: " + e.getMessage());
+        }
+    }
+
+
+    public double cargarMetaGasto() {
+        double meta = 0.0;
+        try (BufferedReader reader = new BufferedReader(new FileReader("metaGasto.txt"))) {
+            String line = reader.readLine();
+            if (line != null) {
+                meta = Double.parseDouble(line);
+            }
+        } catch (IOException e) {
+            System.out.println("No se pudo cargar la meta de gasto: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.out.println("Formato de número inválido en la meta de gasto.");
+        }
+        return meta;
+    }
+    public boolean validarFecha(String fecha) {
+        String patron = "\\d{2}/\\d{2}/\\d{4}";
+        return fecha.matches(patron);
+    }
+
+
 }

@@ -24,7 +24,7 @@ public class ControlDeGastosEstudiantil {
             System.out.println("4) Búsqueda por categoría de gasto");
             System.out.println("5) Búsqueda por fecha");
             System.out.println("6) Establecer meta");
-            System.out.println("7) Calcular promedio de gastos");
+            System.out.println("7) Calcular promedio de cada tipo de gastos");
             System.out.println("8) Eliminar datos de CSV");
             System.out.println("9) Salir");
             System.out.print("Seleccione una opción: ");
@@ -114,6 +114,7 @@ public class ControlDeGastosEstudiantil {
                     System.out.println("Error: El límite debe ser un número positivo.");
                     continue;
                 }
+                System.out.println("El limite ha sido definido en: "+ limite);
                 break;
             } catch (NumberFormatException e) {
                 System.out.println("Error: El límite debe ser un número.");
