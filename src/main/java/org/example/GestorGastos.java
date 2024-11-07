@@ -7,30 +7,27 @@ import java.util.List;
 import java.util.Map;
 
 public class GestorGastos {
-    private static String csvGastos = "gastos.csv";
-    private double limiteGasto;
+    private static String csvGastos;
+    private int limiteGasto;
 
-
-    public GestorGastos() {
-        this.csvGastos = "gastos.csv";
-    }
     public GestorGastos(String csvGastosPath) {
         this.csvGastos = csvGastosPath;
     }
+
     public void registrarGasto(Gasto gasto) {
         double montoTotal = calcularMontoTotal();
         if (gasto.getMonto() + montoTotal > limiteGasto) {
             System.out.println("Error: El gasto de " + gasto.getMonto() + " excede el límite establecido de " + limiteGasto + ". Total actual: " + montoTotal);
             return;
         }
-
         if (!validarFecha(gasto.getFecha())) {
-            System.out.println("Error: La fecha " + gasto.getFecha() + " no es válida. El formato correcto es DD/MM/AAAA.");
+            System.out.println("Error: Introduzca una fecha válida.");
             return;
         }
 
         try (FileWriter csvWriter = new FileWriter(csvGastos, true)) {
-            csvWriter.append(gasto.getMonto() + ",")
+            csvWriter.append(gasto.getTitulo() + ",")
+                     .append(gasto.getMonto() + ",")
                     .append(gasto.getFecha() + ",")
                     .append(gasto.getCategoria() + ",")
                     .append(gasto.getComentario() + "\n");
@@ -40,8 +37,6 @@ public class GestorGastos {
             System.out.println("Error al escribir en el archivo CSV: " + e.getMessage());
         }
     }
-
-
 
     public void imprimirGastos() {
         try (BufferedReader lectorGastos = new BufferedReader(new FileReader(csvGastos))) {
@@ -56,13 +51,14 @@ public class GestorGastos {
             System.out.println("Error al leer el archivo: " + e.getMessage());
         }
     }
-    public double calcularMontoTotal() {
-        double total = 0.0;
+
+    public int calcularMontoTotal() {
+        int total = 0;
         try (BufferedReader lectorGastos = new BufferedReader(new FileReader(csvGastos))) {
             String linea;
             while ((linea = lectorGastos.readLine()) != null) {
                 String[] datos = linea.split(",");
-                total += Double.parseDouble(datos[0]);
+                total += Integer.parseInt(datos[1]);
             }
         } catch (IOException e) {
             System.out.println("Error al leer el archivo: " + e.getMessage());
@@ -73,7 +69,6 @@ public class GestorGastos {
         return total;
     }
 
-
     public void buscarGastosPorCategoria(String categoria) {
         boolean encontrado = false;
         try (BufferedReader lectorGastos = new BufferedReader(new FileReader(csvGastos))) {
@@ -82,8 +77,8 @@ public class GestorGastos {
             System.out.println("----------------------------------------");
             while ((linea = lectorGastos.readLine()) != null) {
                 String[] datos = linea.split(",");
-                if (datos[2].trim().equalsIgnoreCase(categoria)) {
-                    System.out.println("Monto: " + datos[0] + ", Fecha: " + datos[1] + ", Comentario: " + datos[3]);
+                if (datos[3].trim().equalsIgnoreCase(categoria)) {
+                    System.out.println("Titulo: " + datos[0] + "Monto: " + datos[1] + ", Fecha: " + datos[2] + ", Comentario: " + datos[4]);
                     encontrado = true;
                 }
             }
@@ -104,7 +99,7 @@ public class GestorGastos {
             System.out.println("----------------------------------------");
             while ((linea = lectorGastos.readLine()) != null) {
                 String[] datos = linea.split(",");
-                if (datos[1].equals(fecha)) {
+                if (datos[2].equals(fecha)) {
                     System.out.println(linea);
                     encontrado = true;
                 }
@@ -117,25 +112,17 @@ public class GestorGastos {
             System.out.println("Error al leer el archivo: " + e.getMessage());
         }
     }
-    public void establecerLimiteGasto(double limite) {
+
+    public void establecerLimiteGasto(int limite) {
         this.limiteGasto = limite; }
 
-    public double getLimiteGasto() {
+    public int getLimiteGasto() {
         return limiteGasto; }
 
-    public void eliminarDatosCSV() {
-        try (FileWriter writer = new FileWriter(csvGastos, false)) {
-            writer.write("");
-            System.out.println("Datos eliminados correctamente del archivo de gastos.");
-        } catch (IOException e) {
-            System.out.println("Error al intentar borrar los datos: " + e.getMessage());
-        }
-    }
-
     public Map<String, Double> calcularPorcentajePorCategoria() {
-        List<Gasto> gastos = cargarGastosDesdeCSV();
+        List<Gasto> gastos = GestorCSV.cargarGastosDesdeCSV("gastos.csv");
         Map<String, Double> totalPorCategoria = new HashMap<>();
-        double totalGastos = 0.0;
+        int totalGastos = 0;
 
         for (Gasto gasto : gastos) {
             totalGastos += gasto.getMonto();
@@ -153,26 +140,6 @@ public class GestorGastos {
         return porcentajePorCategoria;
     }
 
-    public List<Gasto> cargarGastosDesdeCSV() {
-        List<Gasto> gastos = new ArrayList<>();
-        try (BufferedReader lectorGastos = new BufferedReader(new FileReader(csvGastos))) {
-            String linea;
-            while ((linea = lectorGastos.readLine()) != null) {
-                String[] datos = linea.split(",");
-                if (datos.length == 4) {
-                    double monto = Double.parseDouble(datos[0]);
-                    String fecha = datos[1];
-                    String categoria = datos[2];
-                    String comentario = datos[3];
-                    gastos.add(new Gasto(monto, fecha, categoria, comentario));
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error al leer los gastos: " + e.getMessage());
-        }
-        return gastos;
-    }
-
     public List<Gasto> obtenerGastos() {
         List<Gasto> gastos = new ArrayList<>();
 
@@ -182,21 +149,22 @@ public class GestorGastos {
                 String[] datos = line.split(",");
 
                 // Parsear datos del CSV y crear un objeto Gasto
-                double monto = Double.parseDouble(datos[0]);
-                String fecha = datos[1];
-                String categoria = datos[2];
-                String comentario = datos[3];
+                String titulo = datos[0];
+                int monto = Integer.parseInt(datos[1]);
+                String fecha = datos[2];
+                String categoria = datos[3];
+                String comentario = datos[4];
 
-                Gasto gasto = new Gasto(monto, fecha, categoria, comentario);
+                Gasto gasto = new Gasto(titulo, monto, fecha, categoria, comentario);
                 gastos.add(gasto);
             }
         } catch (IOException | NumberFormatException e) {
             System.out.println("Error al leer el archivo de gastos: " + e.getMessage());
         }
-
         return gastos;
     }
-    public void guardarMetaGasto(double metaGasto) {
+
+    public void guardarMetaGasto(int metaGasto) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("metaGasto.txt"))) {
             writer.write(Double.toString(metaGasto));
         } catch (IOException e) {
@@ -204,13 +172,12 @@ public class GestorGastos {
         }
     }
 
-
-    public double cargarMetaGasto() {
-        double meta = 0.0;
+    public int cargarMetaGasto() {
+        int meta = 0;
         try (BufferedReader reader = new BufferedReader(new FileReader("metaGasto.txt"))) {
             String line = reader.readLine();
             if (line != null) {
-                meta = Double.parseDouble(line);
+                meta = Integer.parseInt(line);
             }
         } catch (IOException e) {
             System.out.println("No se pudo cargar la meta de gasto: " + e.getMessage());
@@ -219,9 +186,36 @@ public class GestorGastos {
         }
         return meta;
     }
-    public boolean validarFecha(String fecha) {
+
+    public static boolean validarFecha(String fecha) {
         String patron = "\\d{2}/\\d{2}/\\d{4}";
-        return fecha.matches(patron);
+        if (fecha.matches(patron)) {
+            String dia = (String.valueOf(fecha.charAt(0))+String.valueOf(fecha.charAt(1)));
+            String mes = (String.valueOf(fecha.charAt(3))+String.valueOf(fecha.charAt(4)));
+            String anio = (String.valueOf(fecha.charAt(6))+String.valueOf(fecha.charAt(7))+String.valueOf(fecha.charAt(8))+String.valueOf(fecha.charAt(9)));
+
+            if (Integer.parseInt(dia) > 31) {
+                return false; //comprobar que el dia no supere el 31
+            }
+            else if (Integer.parseInt(mes) > 12) {
+                return false; //comprobar que el mes no supere el 12
+            }
+            else if (Integer.parseInt(dia) == 0 || Integer.parseInt(mes) == 0) {
+                return false; //comprobar que el dia y mes no sea 00
+            }
+            else if (!esBisiesto(Integer.parseInt(anio)) && Integer.parseInt(mes) == 2 && Integer.parseInt(dia) > 28) {
+                return false; //comprobar que en febrero no supere el dia 28
+            }
+            else if (esBisiesto(Integer.parseInt(anio)) && Integer.parseInt(mes) == 2 && Integer.parseInt(dia) > 29) {
+                return false; //comprobar que en año bisiesto, en febrero no se supere el dia 29
+            }
+            else { return true; }
+        }
+        else { return false; }
+    }
+
+    public static boolean esBisiesto(int anio) {
+        return (anio % 4 == 0 && anio % 100 != 0) || (anio % 400 == 0);
     }
 
 

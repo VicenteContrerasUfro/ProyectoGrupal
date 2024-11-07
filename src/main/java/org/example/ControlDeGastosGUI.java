@@ -9,16 +9,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.example.ControlDeGastosEstudiantil.mostrarPorcentajePorCategoria;
-
 public class ControlDeGastosGUI {
     private JFrame frame;
-    private JTextField nombreField, montoField, fechaField, categoriaField, detalleField;
+    private JTextField tituloField, montoField, fechaField, categoriaField, detalleField;
     private JTextArea historialArea;
     private GestorGastos gestorGastos;
     private JLabel metaGastoLabel;
     private JLabel totalGastadoLabel;
-    private double metaGasto;
+    private int metaGasto;
 
     public ControlDeGastosGUI(GestorGastos gestorGastos) {
         this.gestorGastos = gestorGastos;
@@ -33,9 +31,9 @@ public class ControlDeGastosGUI {
         // Panel de registro de gastos
         JPanel panelRegistro = new JPanel(new GridLayout(6, 2));
 
-        panelRegistro.add(new JLabel("Nombre:"));
-        nombreField = new JTextField();
-        panelRegistro.add(nombreField);
+        panelRegistro.add(new JLabel("Titulo:"));
+        tituloField = new JTextField();
+        panelRegistro.add(tituloField);
 
         panelRegistro.add(new JLabel("Monto:"));
         montoField = new JTextField();
@@ -140,21 +138,21 @@ public class ControlDeGastosGUI {
     }
 
     private void registrarGasto() {
-        String nombre = nombreField.getText();
+        String titulo = tituloField.getText();
         String montoStr = montoField.getText();
         String fecha = fechaField.getText();
         String categoria = categoriaField.getText();
         String detalle = detalleField.getText();
 
         // Validar campos vacíos
-        if (nombre.isEmpty() || montoStr.isEmpty() || fecha.isEmpty() || categoria.isEmpty() || detalle.isEmpty()) {
+        if (titulo.isEmpty() || montoStr.isEmpty() || fecha.isEmpty() || categoria.isEmpty() || detalle.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Por favor, complete todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         try {
-            double monto = Double.parseDouble(montoStr);
-            double montoTotalActual = gestorGastos.calcularMontoTotal();
+            int monto = Integer.parseInt(montoStr);
+            int montoTotalActual = (int) gestorGastos.calcularMontoTotal();
 
             // Verificar si el gasto excede el límite establecido
             if (monto + montoTotalActual > metaGasto) {
@@ -162,13 +160,19 @@ public class ControlDeGastosGUI {
                 return;
             }
 
+            //validar fecha
+            if (!GestorGastos.validarFecha(fecha)) {
+                JOptionPane.showMessageDialog(frame, "Error: La fecha introducida no es válida.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             // Crear y registrar el gasto
-            Gasto gasto = new Gasto(monto, fecha, categoria, detalle);
+            Gasto gasto = new Gasto(titulo, monto, fecha, categoria, detalle);
             gestorGastos.registrarGasto(gasto);
 
             // Registrar gasto en el historial
             historialArea.append("Gasto registrado:\n");
-            historialArea.append("Nombre: " + nombre + "\n");
+            historialArea.append("Nombre: " + titulo + "\n");
             historialArea.append("Monto: $" + montoStr + "\n");
             historialArea.append("Fecha: " + fecha + "\n");
             historialArea.append("Categoría: " + categoria + "\n");
@@ -178,7 +182,7 @@ public class ControlDeGastosGUI {
             totalGastadoLabel.setText("$" + gestorGastos.calcularMontoTotal());
 
             // Limpiar campos
-            nombreField.setText("");
+            tituloField.setText("");
             montoField.setText("");
             fechaField.setText("");
             categoriaField.setText("");
@@ -192,7 +196,7 @@ public class ControlDeGastosGUI {
 
 
     private void limpiarTodosLosGastos() {
-        gestorGastos.eliminarDatosCSV();
+        GestorCSV.eliminarDatosCSV("gastos.csv");
         historialArea.setText(""); // Limpiar el área de historial en la interfaz
     }
 
@@ -200,11 +204,11 @@ public class ControlDeGastosGUI {
         String input = JOptionPane.showInputDialog(frame, "Ingrese el límite máximo de gasto:");
         if (input != null) {
             try {
-                metaGasto = Double.parseDouble(input);
-                gestorGastos.establecerLimiteGasto(metaGasto);
+                metaGasto = Integer.parseInt(input);
+                gestorGastos.establecerLimiteGasto((int) metaGasto);
                 gestorGastos.guardarMetaGasto(metaGasto); // Guardar la nueva meta
                 metaGastoLabel.setText("Meta Establecida: $" + metaGasto); // Actualizar el JLabel
-                JOptionPane.showMessageDialog(frame, "Meta establecida en: " + metaGasto);
+                JOptionPane.showMessageDialog(frame, "Meta establecida en: $" + metaGasto);
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(frame, "Ingrese un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -213,7 +217,7 @@ public class ControlDeGastosGUI {
 
     public static void main(String[] args) {
         // Crear gestorGastos y pasar el archivo CSV
-        GestorGastos gestorGastos = new GestorGastos();
+        GestorGastos gestorGastos = new GestorGastos("gastos.csv");
 
         // Crear y mostrar la interfaz gráfica
         SwingUtilities.invokeLater(() -> new ControlDeGastosGUI(gestorGastos));

@@ -1,12 +1,14 @@
 package org.example;
 
 public class Gasto {
-    private double monto;
+    private String titulo;
+    private int monto;
     private String fecha;
     private String categoria;
     private String comentario;
 
-    public Gasto(double monto, String fecha, String categoria, String comentario) {
+    public Gasto(String titulo, int monto, String fecha, String categoria, String comentario) {
+        this.titulo = titulo;
         this.monto = monto;
         this.fecha = fecha;
         this.categoria = categoria;
@@ -14,7 +16,11 @@ public class Gasto {
     }
 
     // Métodos getters
-    public double getMonto() {
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public int getMonto() {
         return monto;
     }
 
@@ -32,6 +38,6 @@ public class Gasto {
 
     @Override
     public String toString() {
-        return "Monto: " + monto + ", Fecha: " + fecha + ", Categoría: " + categoria + ", Detalle: " + comentario;
+        return "Titulo: " + getTitulo() + "Monto: " + getMonto() + ", Fecha: " + getFecha() + ", Categoría: " + getCategoria() + ", Detalle: " + getComentario();
     }
 }
