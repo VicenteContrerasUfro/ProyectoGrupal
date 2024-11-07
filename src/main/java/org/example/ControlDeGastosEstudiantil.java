@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class ControlDeGastosEstudiantil {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        GestorGastos gestorGastos = new GestorGastos();
+        GestorGastos gestorGastos = new GestorGastos("gastos.csv");
 
         System.out.println("Bienvenido al Sistema de Control de Gastos Estudiantil");
         System.out.print("Ingrese su nombre: ");
@@ -51,7 +51,7 @@ public class ControlDeGastosEstudiantil {
                 }
                 case 6 -> establecerMeta(scanner, gestorGastos);
                 case 7 -> mostrarPorcentajePorCategoria(gestorGastos);
-                case 8 -> gestorGastos.eliminarDatosCSV();
+                case 8 -> GestorCSV.eliminarDatosCSV("gastos.csv");
                 case 9 -> {
                     System.out.println("Finalizando programa...");
                     return;
@@ -62,11 +62,14 @@ public class ControlDeGastosEstudiantil {
     }
 
     public static void registrarGastoEstudiantil(Scanner scanner, GestorGastos gestorGastos) {
-        double monto = 0.0;
+        int monto = 0;
         String fecha, categoriaGasto, comentario;
         try {
+            System.out.println("Ingrese el titulo: ");
+            String titulo = scanner.nextLine().trim();
+
             System.out.println("Ingrese el monto del gasto: ");
-            String montoInput = scanner.nextLine().trim(); // Eliminar espacios en blanco
+            String montoInput = scanner.nextLine().trim();
             System.out.println("Monto ingresado (sin espacios): " + montoInput);
 
             // Reemplazar coma por punto si es necesario
@@ -75,7 +78,7 @@ public class ControlDeGastosEstudiantil {
                 System.out.println("Monto después de reemplazar comas por puntos: " + montoInput);
             }
 
-            monto = Double.parseDouble(montoInput);
+            monto = Integer.parseInt(montoInput);
 
             System.out.println("Ingrese la fecha del gasto (DD/MM/AAAA): ");
             fecha = scanner.nextLine();
@@ -90,7 +93,7 @@ public class ControlDeGastosEstudiantil {
             System.out.println("Si desea, ingrese algún comentario extra: ");
             comentario = scanner.nextLine();
 
-            Gasto gasto = new Gasto(monto, fecha, categoriaGasto, comentario);
+            Gasto gasto = new Gasto(titulo, (int) monto, fecha, categoriaGasto, comentario);
 
             gestorGastos.registrarGasto(gasto);
 
