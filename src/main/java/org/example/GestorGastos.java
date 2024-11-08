@@ -52,7 +52,7 @@ public class GestorGastos {
         }
     }
 
-    public int calcularMontoTotal() {
+    public static int calcularMontoTotal() {
         int total = 0;
         try (BufferedReader lectorGastos = new BufferedReader(new FileReader(csvGastos))) {
             String linea;
@@ -166,7 +166,7 @@ public class GestorGastos {
 
     public void guardarMetaGasto(int metaGasto) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("metaGasto.txt"))) {
-            writer.write(Double.toString(metaGasto));
+            writer.write(Integer.toString(metaGasto));
         } catch (IOException e) {
             System.out.println("No se pudo guardar la meta de gasto: " + e.getMessage());
         }

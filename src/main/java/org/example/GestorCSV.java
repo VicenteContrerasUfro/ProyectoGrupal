@@ -1,13 +1,27 @@
 package org.example;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.example.InicioGUI.frame;
+
 public class GestorCSV {
+    static void abrirArchivoCSV() {
+        try {
+            File archivoCSV = new File("gastos.csv");
+            if (archivoCSV.exists()) {
+                Desktop.getDesktop().open(archivoCSV);
+            } else {
+                JOptionPane.showMessageDialog(frame, "El archivo CSV no existe.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "No se pudo abrir el archivo CSV: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     public static void eliminarDatosCSV(String csvGastos) {
         try (FileWriter writer = new FileWriter(csvGastos, false)) {
             writer.write("");
