@@ -38,7 +38,7 @@ class GestorGastosTest {
     @Test
     void testRegistrarGastoExitoso() {
         gestor.establecerLimiteGasto(2000);
-        Gasto gasto = new Gasto(1000, "03/11/2024", "Comida", "Almuerzo");
+        Gasto gasto = new Gasto("Salida",1000, "03/11/2024", "Comida", "Almuerzo");
         gestor.registrarGasto(gasto);
 
         assertTrue(new File(testCsvPath).exists());
@@ -50,7 +50,7 @@ class GestorGastosTest {
     void testRegistrarGastoFallido() {
         //limite mas bajo
         gestor.establecerLimiteGasto(50);
-        Gasto gasto = new Gasto(100, "03-11-2024", "Ropa", "Chaqueta");
+        Gasto gasto = new Gasto("Salida",100, "03-11-2024", "Ropa", "Chaqueta");
 
         gestor.registrarGasto(gasto);
 
@@ -66,8 +66,8 @@ class GestorGastosTest {
     // prueba para calcular el monto total gastado después de registrar dos gastos
     @Test void testCalcularMontoTotalGastado() {
         gestor.establecerLimiteGasto(5000);
-        Gasto gasto1 = new Gasto(1000, "12/10/2024", "Comida", "Almuerzo");
-        Gasto gasto2 = new Gasto(1500, "12/10/2024", "Transporte", "Taxi");
+        Gasto gasto1 = new Gasto("Salida",1000, "12/10/2024", "Comida", "Almuerzo");
+        Gasto gasto2 = new Gasto("Salida", 1500, "12/10/2024", "Transporte", "Taxi");
         gestor.registrarGasto(gasto1);
         gestor.registrarGasto(gasto2);
         assertEquals(2500, gestor.calcularMontoTotal()); }
@@ -75,7 +75,7 @@ class GestorGastosTest {
     // prueba para registrar un gasto con fecha incorrecta
     @Test void testRegistrarGastoFechaIncorrecta() {
         gestor.establecerLimiteGasto(1000);
-        Gasto gasto = new Gasto(100, "40-14-2024", "Comida", "Desayuno"); //fecha incorrecta
+        Gasto gasto = new Gasto("Salida",100, "40-14-2024", "Comida", "Desayuno"); //fecha incorrecta
         gestor.registrarGasto(gasto); // Verificar que el gasto no se haya registrado
         assertEquals(0, gestor.calcularMontoTotal());
     }
