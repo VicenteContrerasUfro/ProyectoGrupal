@@ -50,12 +50,7 @@ public class ControlDeGastosGUI {
             gestorGastos.registrarGasto(gasto);
 
             // Registrar gasto en el historial
-            historialArea.append("Gasto registrado:\n");
-            historialArea.append("Nombre: " + titulo + "\n");
-            historialArea.append("Monto: $" + montoStr + "\n");
-            historialArea.append("Fecha: " + fecha + "\n");
-            historialArea.append("Categoría: " + categoria + "\n");
-            historialArea.append("Detalle: " + detalle + "\n\n");
+            imprimirGasto(gasto);
 
             // Actualizar el monto total gastado
             totalGastadoLabel.setText("$" + gestorGastos.calcularMontoTotal());
@@ -74,6 +69,19 @@ public class ControlDeGastosGUI {
         }
     }
 
+    public static void imprimirHistorial() {
+        for (Gasto gasto : gestorGastos.obtenerGastos()) {
+            imprimirGasto(gasto);
+        }
+    }
+
+    public static void imprimirGasto(Gasto gasto) {
+        historialArea.append("Titulo: " + gasto.getTitulo() + "\n");
+        historialArea.append("Monto: $" + gasto.getMonto() + "\n");
+        historialArea.append("Fecha: " + gasto.getFecha() + "\n");
+        historialArea.append("Categoría: " + gasto.getCategoria() + "\n");
+        historialArea.append("Detalle: " + gasto.getComentario() + "\n\n");
+    }
 
     static void limpiarTodosLosGastos() {
         GestorCSV.eliminarDatosCSV("gastos.csv");
@@ -120,5 +128,4 @@ public class ControlDeGastosGUI {
         // Mostrar el mensaje en un cuadro de diálogo
         JOptionPane.showMessageDialog(frame, mensaje.toString(), "Porcentaje de Gasto por Categoría", JOptionPane.INFORMATION_MESSAGE);
     }
-
 }

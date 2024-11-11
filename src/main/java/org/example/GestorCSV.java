@@ -37,7 +37,7 @@ public class GestorCSV {
             String linea;
             while ((linea = lectorGastos.readLine()) != null) {
                 String[] datos = linea.split(",");
-                if (datos.length == 4) {
+                if (datos.length == 5) {
                     String titulo = datos[0];
                     int monto = Integer.parseInt(datos[1]);
                     String fecha = datos[2];
@@ -50,5 +50,9 @@ public class GestorCSV {
             System.out.println("Error al leer los gastos: " + e.getMessage());
         }
         return gastos;
+    }
+
+    public static void guardarGastoCSV(String csvGastos, Gasto gasto) {
+
     }
 }

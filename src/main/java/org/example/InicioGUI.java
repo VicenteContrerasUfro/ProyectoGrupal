@@ -1,6 +1,7 @@
 package org.example;
 
 import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -66,6 +67,9 @@ public class InicioGUI {
         JScrollPane scrollPane = new JScrollPane(historialArea);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Historial de Gastos")); // Borde para el historial
         frame.add(scrollPane, BorderLayout.CENTER);
+
+        // Recuperar historial guardado
+        ControlDeGastosGUI.imprimirHistorial();
 
         // Panel para los botones de acciones
         JPanel panelBotones = new JPanel(new GridLayout(1, 5));
