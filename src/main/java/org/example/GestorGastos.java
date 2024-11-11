@@ -12,10 +12,11 @@ public class GestorGastos {
 
     public GestorGastos(String csvGastosPath) {
         this.csvGastos = csvGastosPath;
+        this.limiteGasto = cargarMetaGasto();
     }
 
     public void registrarGasto(Gasto gasto) {
-        double montoTotal = calcularMontoTotal();
+        int montoTotal = calcularMontoTotal();
         if (gasto.getMonto() + montoTotal > limiteGasto) {
             System.out.println("Error: El gasto de " + gasto.getMonto() + " excede el límite establecido de " + limiteGasto + ". Total actual: " + montoTotal);
             return;
@@ -140,8 +141,8 @@ public class GestorGastos {
         return porcentajePorCategoria;
     }
 
-    public List<Gasto> obtenerGastos() {
-        List<Gasto> gastos = new ArrayList<>();
+    public static ArrayList<Gasto> obtenerGastos() {
+        ArrayList<Gasto> gastos = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(csvGastos))) {
             String line;
