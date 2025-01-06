@@ -6,10 +6,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.example.ControlDeGastosEstudiantil.mostrarPorcentajePorCategoria;
 
 public class ControlDeGastosGUI {
     private JFrame frame;
@@ -135,7 +136,11 @@ public class ControlDeGastosGUI {
         });
         panelBotones.add(verTotalGastadoBtn);
 
-        frame.add(panelBotones, BorderLayout.SOUTH);
+        // Crear un contenedor para los paneles de monto total y botones
+        JPanel panelInferior = new JPanel(new GridLayout(2, 1));
+        panelInferior.add(panelMontoTotal);
+        panelInferior.add(panelBotones);
+        frame.add(panelInferior, BorderLayout.SOUTH);
         frame.setVisible(true);
     }
 
@@ -151,6 +156,11 @@ public class ControlDeGastosGUI {
             JOptionPane.showMessageDialog(frame, "Por favor, complete todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        if (!validarFecha(fecha)) {
+            JOptionPane.showMessageDialog(frame, "Por favor, ingrese una fecha válida en formato DD/MM/AAAA.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
 
         try {
             double monto = Double.parseDouble(montoStr);
@@ -188,6 +198,18 @@ public class ControlDeGastosGUI {
             JOptionPane.showMessageDialog(frame, "Error: El monto debe ser un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    private boolean validarFecha(String fecha) {
+        try {
+            SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
+            formatoFecha.setLenient(false);
+            formatoFecha.parse(fecha);
+            return true;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
 
 
 
@@ -228,8 +250,9 @@ public class ControlDeGastosGUI {
                 JOptionPane.showMessageDialog(frame, "El archivo CSV no existe.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "No se pudo abrir el archivo CSV: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "No se pudo abrir el archivo CSV. Verifique si existe o si está en uso por otra aplicación.", "Error", JOptionPane.ERROR_MESSAGE);
         }
+
     }
 
     private void mostrarTotalGastado() {
@@ -249,10 +272,16 @@ public class ControlDeGastosGUI {
 
         // Crear el mensaje con el porcentaje por categoría
         StringBuilder mensaje = new StringBuilder("Porcentaje de Gasto por Categoría:\n");
+        if (totalGastado == 0.0) {
+            JOptionPane.showMessageDialog(frame, "No hay gastos registrados para calcular porcentajes.", "Información", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
         for (Map.Entry<String, Double> entry : gastosPorCategoria.entrySet()) {
             double porcentaje = (entry.getValue() / totalGastado) * 100;
             mensaje.append(entry.getKey()).append(": ").append(String.format("%.2f", porcentaje)).append("%\n");
         }
+
 
         // Mostrar el mensaje en un cuadro de diálogo
         JOptionPane.showMessageDialog(frame, mensaje.toString(), "Porcentaje de Gasto por Categoría", JOptionPane.INFORMATION_MESSAGE);
