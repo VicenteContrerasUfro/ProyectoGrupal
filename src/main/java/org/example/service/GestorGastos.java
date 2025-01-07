@@ -12,12 +12,13 @@ public class GestorGastos {
     private static String csvGastos = "gastos.csv";
     private double limiteGasto;
 
-
     public GestorGastos() {
         this.csvGastos = "gastos.csv";
+        this.limiteGasto = cargarMetaGasto();
     }
     public GestorGastos(String csvGastosPath) {
         this.csvGastos = csvGastosPath;
+        this.limiteGasto = cargarMetaGasto();
     }
     public void registrarGasto(Gasto gasto) {
         double montoTotal = calcularMontoTotal();
@@ -214,18 +215,34 @@ public class GestorGastos {
 
     public double cargarMetaGasto() {
         double meta = 0.0;
-        try (BufferedReader reader = new BufferedReader(new FileReader("metaGasto.txt"))) {
+        File archivo = new File("metaGasto.txt");
+
+        // Verificar si el archivo existe
+        if (!archivo.exists()) {
+            System.out.println("El archivo 'metaGasto.txt' no existe. Usando meta predeterminada: 0.0.");
+            return meta;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(archivo))) {
             String line = reader.readLine();
-            if (line != null) {
-                meta = Double.parseDouble(line);
+
+            // Comprobar si hay contenido en la línea leída
+            if (line != null && !line.isEmpty()) {
+                try {
+                    meta = Double.parseDouble(line);
+                } catch (NumberFormatException e) {
+                    System.out.println("Formato de número inválido en 'metaGasto.txt'. El valor debe ser un número válido.");
+                }
+            } else {
+                System.out.println("El archivo 'metaGasto.txt' está vacío. Usando meta predeterminada: 0.0.");
             }
         } catch (IOException e) {
             System.out.println("No se pudo cargar la meta de gasto: " + e.getMessage());
-        } catch (NumberFormatException e) {
-            System.out.println("Formato de número inválido en la meta de gasto.");
         }
+
         return meta;
     }
+
     public boolean validarFecha(String fecha) {
         String patron = "\\d{2}/\\d{2}/\\d{4}";
         return fecha.matches(patron);

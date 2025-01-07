@@ -6,6 +6,7 @@ import org.junit.jupiter.api.*;
 import java.io.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+
 class GestorGastosTest {
     private GestorGastos gestor;
     private final String testCsvPath = "test_gastos.csv";
@@ -40,7 +41,7 @@ class GestorGastosTest {
     @Test
     void testRegistrarGastoExitoso() {
         gestor.establecerLimiteGasto(2000);
-        Gasto gasto = new Gasto("Salida",1000, "03/11/2024", "Comida", "Almuerzo");
+        Gasto gasto = new Gasto("1000","03/11/2024", "Salida", "Comida");
         gestor.registrarGasto(gasto);
 
         assertTrue(new File(testCsvPath).exists());

@@ -5,11 +5,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.File;
 import org.example.model.Gasto;
-
-import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,7 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class ControlDeGastosGUI {
+public class
+ControlDeGastosGUI {
     private JFrame frame;
     private JTextField nombreField, montoField, fechaField, categoriaField, detalleField;
     private JTextArea historialArea;
@@ -60,8 +58,9 @@ public class ControlDeGastosGUI {
         panelRegistro.add(detalleField);
 
         // Agregar el JLabel para mostrar la meta de gasto
+        metaGasto = gestorGastos.cargarMetaGasto();
         metaGastoLabel = new JLabel("Meta Establecida: $" + metaGasto);
-        panelRegistro.add(metaGastoLabel); // Agregar la meta al panel de registro
+        panelRegistro.add(metaGastoLabel);
 
         frame.add(panelRegistro, BorderLayout.NORTH);
 
@@ -146,6 +145,7 @@ public class ControlDeGastosGUI {
         String fecha = fechaField.getText();
         String categoria = categoriaField.getText();
         String detalle = detalleField.getText();
+        metaGasto = gestorGastos.cargarMetaGasto();
 
         // Validar campos vacíos
 
@@ -177,7 +177,7 @@ public class ControlDeGastosGUI {
             Gasto gasto = new Gasto(monto, fecha, categoria, detalle);
             gestorGastos.registrarGasto(gasto);
 
-            // Registrar gasto en el historial
+            // Registrar gasto en +el historial
             historialArea.append("Gasto registrado:\n");
             historialArea.append("Nombre: " + nombre + "\n");
             historialArea.append("Monto: $" + montoStr + "\n");
@@ -205,6 +205,7 @@ public class ControlDeGastosGUI {
     private void limpiarTodosLosGastos() {
         gestorGastos.eliminarDatosCSV();
         historialArea.setText(""); // Limpiar el área de historial en la interfaz
+        totalGastadoLabel.setText("$" + gestorGastos.calcularMontoTotal());
     }
 
     private void establecerMeta() {
@@ -214,13 +215,14 @@ public class ControlDeGastosGUI {
                 metaGasto = Double.parseDouble(input);
                 gestorGastos.establecerLimiteGasto(metaGasto);
                 gestorGastos.guardarMetaGasto(metaGasto); // Guardar la nueva meta
-                metaGastoLabel.setText("Meta Establecida: $" + metaGasto); // Actualizar el JLabel
+                metaGastoLabel.setText("Meta Establecida: $" + metaGasto); // Actualizar la interfaz
                 JOptionPane.showMessageDialog(frame, "Meta establecida en: " + metaGasto);
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(frame, "Ingrese un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
+
 
     public static void main(String[] args) {
         // Crear gestorGastos y pasar el archivo CSV
@@ -243,33 +245,6 @@ public class ControlDeGastosGUI {
         }
 
     }
-
-    private double mostrarTotalGastado() {
-        double total = 0.0;
-        try {
-            // Leer el archivo CSV
-            File archivoCSV = new File("gastos.csv");
-            if (archivoCSV.exists()) {
-                BufferedReader reader = new BufferedReader(new FileReader(archivoCSV));
-                String linea;
-                while ((linea = reader.readLine()) != null) {
-                    String[] partes = linea.split(",");
-                    if (partes.length >= 2) {
-                        try {
-                            // Verificar si el monto es un número válido
-                            total += Double.parseDouble(partes[0].trim());
-                        } catch (NumberFormatException e) {
-                        }
-                    }
-                }
-                reader.close();
-            }
-        } catch (IOException | NumberFormatException e) {
-            e.printStackTrace();
-        }
-        return total;
-    }
-
 
 
     private void mostrarPorcentajePorCategoria(GestorGastos gestorGastos) {
