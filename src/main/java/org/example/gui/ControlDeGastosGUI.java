@@ -131,17 +131,6 @@ public class ControlDeGastosGUI {
         });
         panelBotones.add(verPorcentajeBtn);
 
-
-        // Botón para mostrar total gastado
-        JButton verTotalGastadoBtn = new JButton("Total Gastado");
-        verTotalGastadoBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mostrarTotalGastado();
-            }
-        });
-        panelBotones.add(verTotalGastadoBtn);
-
         // Agregamos un contenedor para los paneles de acciones
         JPanel panelInferior = new JPanel(new GridLayout(2, 1));
         panelInferior.add(panelMontoTotal);
@@ -266,7 +255,11 @@ public class ControlDeGastosGUI {
                 while ((linea = reader.readLine()) != null) {
                     String[] partes = linea.split(",");
                     if (partes.length >= 2) {
-                        total += Double.parseDouble(partes[1]);
+                        try {
+                            // Verificar si el monto es un número válido
+                            total += Double.parseDouble(partes[0].trim());
+                        } catch (NumberFormatException e) {
+                        }
                     }
                 }
                 reader.close();
@@ -276,6 +269,8 @@ public class ControlDeGastosGUI {
         }
         return total;
     }
+
+
 
     private void mostrarPorcentajePorCategoria(GestorGastos gestorGastos) {
         Map<String, Double> gastosPorCategoria = new HashMap<>();
