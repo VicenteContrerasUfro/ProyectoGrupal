@@ -1,4 +1,6 @@
-package org.example;
+package org.example.service;
+
+import org.example.model.Gasto;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -58,20 +60,25 @@ public class GestorGastos {
     }
     public double calcularMontoTotal() {
         double total = 0.0;
-        try (BufferedReader lectorGastos = new BufferedReader(new FileReader(csvGastos))) {
-            String linea;
-            while ((linea = lectorGastos.readLine()) != null) {
-                String[] datos = linea.split(",");
-                total += Double.parseDouble(datos[0]);
+        try {
+            File archivoCSV = new File("gastos.csv");
+            if (archivoCSV.exists()) {
+                BufferedReader reader = new BufferedReader(new FileReader(archivoCSV));
+                String linea;
+                while ((linea = reader.readLine()) != null) {
+                    String[] partes = linea.split(",");
+                    if (partes.length >= 2) {
+                        total += Double.parseDouble(partes[0]);
+                    }
+                }
+                reader.close();
             }
-        } catch (IOException e) {
-            System.out.println("Error al leer el archivo: " + e.getMessage());
-        } catch (NumberFormatException e) {
-            System.out.println("Error: El monto debe ser un número válido.");
+        } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
         }
         return total;
     }
+
 
 
     public void buscarGastosPorCategoria(String categoria) {

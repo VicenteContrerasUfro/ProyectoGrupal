@@ -1,4 +1,7 @@
-package org.example;
+package org.example.core;
+
+import org.example.model.Gasto;
+import org.example.service.GestorGastos;
 
 import java.util.Map;
 import java.util.Scanner;

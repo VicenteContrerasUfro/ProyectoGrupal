@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.model.Gasto;
+import org.example.service.GestorGastos;
 import org.junit.jupiter.api.*;
 import java.io.*;
 import static org.junit.jupiter.api.Assertions.*;

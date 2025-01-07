@@ -1,10 +1,15 @@
-package org.example;
+package org.example.gui;
 
+import org.example.service.GestorGastos;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
+import org.example.model.Gasto;
+
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -63,7 +68,8 @@ public class ControlDeGastosGUI {
         // Panel para el monto total gastado
         JPanel panelMontoTotal = new JPanel(new GridLayout(1, 2));
         panelMontoTotal.add(new JLabel("Monto Total Gastado:"));
-        totalGastadoLabel = new JLabel("$0.0");
+        totalGastadoLabel = new JLabel();
+        totalGastadoLabel.setText("$" + gestorGastos.calcularMontoTotal());
         panelMontoTotal.add(totalGastadoLabel);
         frame.add(panelMontoTotal, BorderLayout.SOUTH);
 
@@ -136,11 +142,12 @@ public class ControlDeGastosGUI {
         });
         panelBotones.add(verTotalGastadoBtn);
 
-        // Crear un contenedor para los paneles de monto total y botones
+        // Agregamos un contenedor para los paneles de acciones
         JPanel panelInferior = new JPanel(new GridLayout(2, 1));
         panelInferior.add(panelMontoTotal);
         panelInferior.add(panelBotones);
         frame.add(panelInferior, BorderLayout.SOUTH);
+
         frame.setVisible(true);
     }
 
@@ -152,6 +159,7 @@ public class ControlDeGastosGUI {
         String detalle = detalleField.getText();
 
         // Validar campos vacíos
+
         if (nombre.isEmpty() || montoStr.isEmpty() || fecha.isEmpty() || categoria.isEmpty() || detalle.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Por favor, complete todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -164,6 +172,10 @@ public class ControlDeGastosGUI {
 
         try {
             double monto = Double.parseDouble(montoStr);
+            if (monto < 0) {
+                JOptionPane.showMessageDialog(frame, "El monto no puede ser negativo.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             double montoTotalActual = gestorGastos.calcularMontoTotal();
 
             // Verificar si el gasto excede el límite establecido
@@ -198,18 +210,6 @@ public class ControlDeGastosGUI {
             JOptionPane.showMessageDialog(frame, "Error: El monto debe ser un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
-    private boolean validarFecha(String fecha) {
-        try {
-            SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
-            formatoFecha.setLenient(false);
-            formatoFecha.parse(fecha);
-            return true;
-        } catch (ParseException e) {
-            return false;
-        }
-    }
-
 
 
 
@@ -255,9 +255,26 @@ public class ControlDeGastosGUI {
 
     }
 
-    private void mostrarTotalGastado() {
-        double totalGastado = gestorGastos.calcularMontoTotal();
-        JOptionPane.showMessageDialog(frame, "Total Gastado: $" + totalGastado, "Total Gastado", JOptionPane.INFORMATION_MESSAGE);
+    private double mostrarTotalGastado() {
+        double total = 0.0;
+        try {
+            // Leer el archivo CSV
+            File archivoCSV = new File("gastos.csv");
+            if (archivoCSV.exists()) {
+                BufferedReader reader = new BufferedReader(new FileReader(archivoCSV));
+                String linea;
+                while ((linea = reader.readLine()) != null) {
+                    String[] partes = linea.split(",");
+                    if (partes.length >= 2) {
+                        total += Double.parseDouble(partes[1]);
+                    }
+                }
+                reader.close();
+            }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return total;
     }
 
     private void mostrarPorcentajePorCategoria(GestorGastos gestorGastos) {
@@ -286,5 +303,16 @@ public class ControlDeGastosGUI {
         // Mostrar el mensaje en un cuadro de diálogo
         JOptionPane.showMessageDialog(frame, mensaje.toString(), "Porcentaje de Gasto por Categoría", JOptionPane.INFORMATION_MESSAGE);
     }
+    private boolean validarFecha(String fecha) {
+        try {
+            SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
+            formatoFecha.setLenient(false);
+            formatoFecha.parse(fecha);
+            return true;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
 
 }
